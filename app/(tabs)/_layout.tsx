@@ -44,6 +44,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="mood"
+        options={{
+          title: "Mood",
+          tabBarIcon: ({color}) => (
+            <IconSymbol size={28} name="face.smiling" color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
