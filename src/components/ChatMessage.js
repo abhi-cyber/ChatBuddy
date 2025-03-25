@@ -1,7 +1,7 @@
 import React from "react";
 import {View, Text, StyleSheet, Image} from "react-native";
 
-const ChatMessage = ({message}) => {
+const ChatMessage = ({message, isFallback, isSystemMessage}) => {
   const isBot = message.sender === "bot";
 
   return (
@@ -22,13 +22,19 @@ const ChatMessage = ({message}) => {
         style={[
           styles.messageBubble,
           isBot ? styles.botBubble : styles.userBubble,
+          isSystemMessage && styles.systemMessageBubble,
+          isFallback && styles.fallbackBubble,
         ]}>
         <Text
           style={[
             styles.messageText,
             isBot ? styles.botText : styles.userText,
+            isSystemMessage && styles.systemMessageText,
           ]}>
           {message.text}
+          {isFallback && !message.text.includes("backup") && (
+            <Text style={styles.fallbackIndicator}> 🤔</Text>
+          )}
         </Text>
 
         <View style={styles.messageTimeContainer}>
@@ -37,6 +43,9 @@ const ChatMessage = ({message}) => {
               hour: "2-digit",
               minute: "2-digit",
             })}
+            {isFallback && (
+              <Text style={styles.fallbackTag}> · Backup Mode</Text>
+            )}
           </Text>
         </View>
       </View>
@@ -94,6 +103,27 @@ const styles = StyleSheet.create({
   messageTime: {
     fontSize: 10,
     color: "#999999",
+  },
+  fallbackBubble: {
+    backgroundColor: "#FFF8E1",
+  },
+  fallbackIndicator: {
+    fontSize: 14,
+  },
+  fallbackTag: {
+    fontSize: 9,
+    fontStyle: "italic",
+    color: "#FF9800",
+  },
+  systemMessageBubble: {
+    backgroundColor: "#E3F2FD",
+    borderStyle: "dashed",
+    borderWidth: 1,
+    borderColor: "#90CAF9",
+  },
+  systemMessageText: {
+    color: "#1976D2",
+    fontStyle: "italic",
   },
 });
 
