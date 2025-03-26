@@ -16,17 +16,10 @@ import {
   getReactNativePersistence,
 } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {FIREBASE_CONFIG} from "../utils/env";
 
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "***REMOVED***",
-  authDomain: "***REMOVED***",
-  projectId: "***REMOVED***",
-  storageBucket: "***REMOVED***.firebasestorage.app",
-  messagingSenderId: "***REMOVED***", // Corrected to match Firebase project number
-  appId: "1:***REMOVED***:web:0232a562b3b3b950c633a2", // Corrected format
-  measurementId: "***REMOVED***",
-};
+// Firebase configuration now imported from environment utility
+const firebaseConfig = FIREBASE_CONFIG;
 
 // Initialize Firebase - check if already initialized
 let app;

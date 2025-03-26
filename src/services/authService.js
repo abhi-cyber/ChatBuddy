@@ -9,18 +9,16 @@ import * as Google from "expo-auth-session/providers/google";
 import {getFirebaseAuth} from "./firebaseService";
 import {Platform} from "react-native";
 import Constants from "expo-constants";
+import {GOOGLE_AUTH} from "../utils/env";
 
 // Register for a web browser redirect
 WebBrowser.maybeCompleteAuthSession();
 
-// IMPORTANT: Replace with your own values from Google Cloud Console
-const EXPO_CLIENT_ID =
-  "***REMOVED***";
-const ANDROID_CLIENT_ID = null; // Skip Android for now
-const IOS_CLIENT_ID =
-  "***REMOVED***";
-const WEB_CLIENT_ID =
-  "***REMOVED***";
+// Client IDs now imported from environment utility
+const EXPO_CLIENT_ID = GOOGLE_AUTH.expoClientId;
+const ANDROID_CLIENT_ID = GOOGLE_AUTH.androidClientId;
+const IOS_CLIENT_ID = GOOGLE_AUTH.iosClientId;
+const WEB_CLIENT_ID = GOOGLE_AUTH.webClientId;
 
 console.log(`Using OAuth config for platform: ${Platform.OS}`);
 
