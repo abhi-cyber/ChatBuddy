@@ -12,6 +12,7 @@ const MAPPING = {
   "house.fill": "home",
   "text.bubble.fill": "chat",
   "face.smiling": "mood",
+  "person.fill": "person", // Added person icon for profile tab
   "chevron.left.forwardslash.chevron.right": "code",
   "chevron.right": "chevron-right",
 } as Partial<

@@ -10,6 +10,12 @@ import {
   getDocs,
   Timestamp,
 } from "firebase/firestore";
+import {
+  getAuth,
+  initializeAuth,
+  getReactNativePersistence,
+} from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -17,25 +23,34 @@ const firebaseConfig = {
   authDomain: "***REMOVED***",
   projectId: "***REMOVED***",
   storageBucket: "***REMOVED***.firebasestorage.app",
-  messagingSenderId: "***REMOVED***",
-  appId: "1:***REMOVED***:web:0232a562b3b3b950c633a2",
+  messagingSenderId: "***REMOVED***", // Corrected to match Firebase project number
+  appId: "1:***REMOVED***:web:0232a562b3b3b950c633a2", // Corrected format
   measurementId: "***REMOVED***",
 };
 
 // Initialize Firebase - check if already initialized
 let app;
 let db;
+let auth;
 
 try {
   if (getApps().length === 0) {
     app = initializeApp(firebaseConfig);
+    // Initialize auth with AsyncStorage for persistence
+    auth = initializeAuth(app, {
+      persistence: getReactNativePersistence(AsyncStorage),
+    });
   } else {
     app = getApp(); // Use existing app
+    auth = getAuth(app);
   }
   db = getFirestore(app);
 } catch (error) {
   console.error("Firebase initialization error:", error);
 }
+
+// Export auth for use in authentication service
+export const getFirebaseAuth = () => auth;
 
 /**
  * Save a new mood entry to Firebase
@@ -44,9 +59,8 @@ try {
  */
 export const saveMoodEntry = async (moodValue) => {
   try {
-    // Get current user ID (in a real app, this would come from authentication)
-    // For now, we'll use a placeholder
-    const userId = "user123";
+    // Get current user ID from authentication
+    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
 
     const moodEntry = {
       userId,
@@ -69,8 +83,8 @@ export const saveMoodEntry = async (moodValue) => {
  */
 export const getMoodHistory = async () => {
   try {
-    // Get current user ID (placeholder)
-    const userId = "user123";
+    // Get current user ID from authentication
+    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
 
     // Get date from 7 days ago
     const sevenDaysAgo = new Date();

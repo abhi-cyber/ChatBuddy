@@ -1,15 +1,36 @@
 import {Tabs} from "expo-router";
-import React from "react";
+import React, {useEffect} from "react";
 import {Platform} from "react-native";
+import {useRouter, Redirect} from "expo-router";
 
 import {HapticTab} from "@/components/HapticTab";
 import {IconSymbol} from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import {Colors} from "@/constants/Colors";
 import {useColorScheme} from "@/hooks/useColorScheme";
+import {useAuth} from "@/src/context/AuthContext";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const {user, isLoading} = useAuth();
+  const router = useRouter();
+
+  // Redirect to login if user is not authenticated
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace("/login");
+    }
+  }, [user, isLoading, router]);
+
+  // Show loading or redirect while checking auth state
+  if (isLoading) {
+    return null;
+  }
+
+  // If not authenticated, redirect to login
+  if (!user) {
+    return <Redirect href="/login" />;
+  }
 
   return (
     <Tabs
@@ -50,6 +71,15 @@ export default function TabLayout() {
           title: "Mood",
           tabBarIcon: ({color}) => (
             <IconSymbol size={28} name="face.smiling" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({color}) => (
+            <IconSymbol size={28} name="person.fill" color={color} />
           ),
         }}
       />
