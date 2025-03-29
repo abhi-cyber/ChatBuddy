@@ -8,9 +8,12 @@
     "scheme": "com.googleusercontent.apps.652705687282-ahrsrnpej70fhqprke8gop8bj3fsil41",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#6C5CE7"
+    },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.abhicyber.GenZTherapist",
+      "bundleIdentifier": "com.abhicyber.ChatBuddy",
       "config": {
         "googleSignIn": {
           "reservedClientId": "com.googleusercontent.apps.652705687282-ahrsrnpej70fhqprke8gop8bj3fsil41"
@@ -20,7 +23,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#6C5CE7"
       }
     },
     "web": {
@@ -33,10 +36,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#6C5CE7"
         }
       ]
     ],

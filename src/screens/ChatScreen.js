@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {useBottomTabBarHeight} from "@react-navigation/bottom-tabs";
+import {LinearGradient} from "expo-linear-gradient";
 import {
   processChatbotResponse,
   suggestMoodFromMessage,
@@ -26,11 +27,11 @@ import TypingIndicator from "../components/TypingIndicator";
 
 // Enhanced quick replies that cover common mental health topics
 const QUICK_REPLIES = [
-  "I'm not vibing rn 😞",
-  "Just stressed about school 📚",
+  "I'm feeling down today 😞",
+  "Just stressed about work 📚",
   "Need someone to talk to 💭",
   "Having anxiety today 😰",
-  "Feeling awesome today! ✨",
+  "Feeling good today! ✨",
   "How to manage stress? 🧘‍♀️",
 ];
 
@@ -137,7 +138,7 @@ const ChatScreen = ({onChangePersona}) => {
         // Show success message
         const reconnectedMessage = {
           id: Date.now().toString() + "-success",
-          text: "Connection restored! I'm back online and ready to chat with my full brainpower! 🧠✨",
+          text: "Connection restored! I'm back online and ready to chat with my full capabilities! 🧠✨",
           sender: "bot",
           isSystemMessage: true,
         };
@@ -275,7 +276,7 @@ const ChatScreen = ({onChangePersona}) => {
       setIsTyping(false);
       const errorMessage = {
         id: (Date.now() + 1).toString(),
-        text: "Sorry bestie, I'm having a brain fog moment 🤯 Can we try again?",
+        text: "I'm having a moment... 🤯 Could we try again?",
         sender: "bot",
       };
 
@@ -296,7 +297,7 @@ const ChatScreen = ({onChangePersona}) => {
   const handleChangePersona = () => {
     // Ask for confirmation before changing
     Alert.alert(
-      "Change who you're talking to?",
+      "Change your companion?",
       "This will reset your current conversation.",
       [
         {
@@ -321,21 +322,29 @@ const ChatScreen = ({onChangePersona}) => {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}>
-        <View style={styles.header}>
+        <LinearGradient
+          colors={["#6C5CE7", "#8B5CF6"]}
+          start={{x: 0, y: 0}}
+          end={{x: 1, y: 1}}
+          style={styles.header}>
           <View style={styles.profileContainer}>
-            <Image
-              source={currentPersona.avatar}
-              style={styles.avatar}
-              defaultSource={currentPersona.fallbackAvatar}
-            />
+            <View style={styles.avatarContainer}>
+              <Text style={styles.avatarEmoji}>
+                {currentPersona.name === "Supportive Friend"
+                  ? "🤗"
+                  : currentPersona.name === "Empathetic Listener"
+                  ? "💖"
+                  : "💪"}
+              </Text>
+            </View>
             <View>
-              <Text style={styles.botName}>{currentPersona.name} Mode</Text>
+              <Text style={styles.botName}>{currentPersona.name}</Text>
               <Text style={styles.botStatus}>
                 {apiStatus === "online"
-                  ? "Always here to vibe ✨"
+                  ? "Ready to chat with you ✨"
                   : apiStatus === "connecting"
                   ? "Connecting..."
-                  : "Using backup mode 🧠💫"}
+                  : "Using backup mode 🧠"}
               </Text>
             </View>
           </View>
@@ -345,7 +354,7 @@ const ChatScreen = ({onChangePersona}) => {
             onPress={handleChangePersona}>
             <Text style={styles.changePersonaText}>Change</Text>
           </TouchableOpacity>
-        </View>
+        </LinearGradient>
 
         {/* API Status Banner */}
         {showStatusBanner && (
@@ -359,10 +368,10 @@ const ChatScreen = ({onChangePersona}) => {
             onPress={handleRetryConnection}>
             <Text style={styles.statusText}>
               {apiStatus === "connecting"
-                ? "Reconnecting to the cloud brain..."
+                ? "Reconnecting to the server..."
                 : apiErrorCount > 10
-                ? "Looks like the server might be down for maintenance. Using backup mode for now."
-                : "I'm using my backup brain! Tap to try reconnecting."}
+                ? "Server may be down for maintenance. Using backup mode for now."
+                : "I'm using my backup mode! Tap to try reconnecting."}
             </Text>
           </TouchableOpacity>
         )}
@@ -416,7 +425,7 @@ const ChatScreen = ({onChangePersona}) => {
           style={[
             styles.inputSection,
             {
-              paddingBottom: tabBarHeight,
+              paddingBottom: Math.max(tabBarHeight, 16),
             },
           ]}>
           <View style={styles.inputContainer}>
@@ -455,15 +464,14 @@ const ChatScreen = ({onChangePersona}) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#FFFFFF",
   },
   header: {
-    backgroundColor: "#FF6B8A",
-    paddingVertical: 15,
+    paddingVertical: 18,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
@@ -472,17 +480,25 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 4,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   profileContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 10,
-    backgroundColor: "#FFC1D2", // Fallback color
+  avatarContainer: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    marginRight: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarEmoji: {
+    fontSize: 24,
   },
   botName: {
     color: "white",
@@ -491,8 +507,8 @@ const styles = StyleSheet.create({
   },
   botStatus: {
     color: "white",
-    fontSize: 12,
-    opacity: 0.8,
+    fontSize: 13,
+    opacity: 0.9,
   },
   messageList: {
     flex: 1,
@@ -503,41 +519,41 @@ const styles = StyleSheet.create({
   },
   quickRepliesSection: {
     backgroundColor: "#FFFFFF",
-    paddingTop: 8,
-    paddingBottom: 5,
+    paddingTop: 10,
+    paddingBottom: 8,
     borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
+    borderTopColor: "#F0F0F0",
   },
   quickRepliesLabel: {
     fontSize: 12,
     color: "#888",
     marginLeft: 15,
-    marginBottom: 5,
+    marginBottom: 8,
     fontWeight: "500",
   },
   quickRepliesContainer: {
     paddingVertical: 5,
     paddingHorizontal: 15,
     flexDirection: "row",
+    gap: 8,
   },
   quickReplyButton: {
-    backgroundColor: "#FFF0F5",
+    backgroundColor: "#F3F0FF",
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#FF6B8A",
-    marginRight: 10,
+    borderColor: "#E4DAFF",
   },
   quickReplyText: {
-    color: "#FF6B8A",
+    color: "#6C5CE7",
     fontWeight: "500",
   },
   inputSection: {
     backgroundColor: "white",
     padding: 12,
     borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
+    borderTopColor: "#F0F0F0",
     shadowColor: "#000",
     shadowOffset: {width: 0, height: -2},
     shadowOpacity: 0.05,
@@ -552,7 +568,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    borderColor: "#EEEEEE",
   },
   input: {
     flex: 1,
@@ -563,22 +579,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   sendButton: {
-    backgroundColor: "#FF6B8A",
+    backgroundColor: "#6C5CE7",
     borderRadius: 20,
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 16,
     marginLeft: 8,
     elevation: 2,
-    shadowColor: "#FF6B8A",
+    shadowColor: "#6C5CE7",
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 2,
   },
   sendButtonDisabled: {
-    backgroundColor: "#FFBFCD",
+    backgroundColor: "#C8C4F5",
+  },
+  sendButtonText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 14,
   },
   statusBanner: {
-    padding: 10,
+    padding: 12,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 4,
@@ -602,7 +623,7 @@ const styles = StyleSheet.create({
   changePersonaButton: {
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.3)",

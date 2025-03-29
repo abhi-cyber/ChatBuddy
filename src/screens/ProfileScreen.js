@@ -35,21 +35,6 @@ const ProfileScreen = () => {
           <Text style={styles.userEmail}>{user?.email || ""}</Text>
         </View>
 
-        <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>7</Text>
-            <Text style={styles.statLabel}>Day Streak</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>23</Text>
-            <Text style={styles.statLabel}>Chats</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>14</Text>
-            <Text style={styles.statLabel}>Mood Logs</Text>
-          </View>
-        </View>
-
         <View style={styles.settingsContainer}>
           <Text style={styles.sectionTitle}>Account</Text>
 
@@ -115,33 +100,6 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: 14,
-    color: "#666",
-  },
-  statsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 24,
-  },
-  statCard: {
-    backgroundColor: "white",
-    borderRadius: 16,
-    padding: 16,
-    alignItems: "center",
-    width: "30%",
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#FF6B8A",
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
     color: "#666",
   },
   settingsContainer: {

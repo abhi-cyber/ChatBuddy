@@ -1,5 +1,5 @@
 import React from "react";
-import {View, Text, StyleSheet, Image} from "react-native";
+import {View, Text, StyleSheet} from "react-native";
 
 const ChatMessage = ({
   message,
@@ -16,11 +16,9 @@ const ChatMessage = ({
         isBot ? styles.botMessageContainer : styles.userMessageContainer,
       ]}>
       {isBot && (
-        <Image
-          source={require("../assets/bot-avatar.png")}
-          style={styles.avatarSmall}
-          defaultSource={require("../assets/default-avatar.png")}
-        />
+        <View style={styles.avatarContainer}>
+          <Text style={styles.avatarText}>AI</Text>
+        </View>
       )}
 
       <View
@@ -82,7 +80,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    maxWidth: "75%",
+    maxWidth: "80%",
+    elevation: 1,
+    shadowColor: "#000",
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   botBubble: {
     backgroundColor: "#F0F0F0",
@@ -90,7 +93,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   userBubble: {
-    backgroundColor: "#FF6B8A",
+    backgroundColor: "#6C5CE7",
     borderBottomRightRadius: 4,
   },
   messageText: {
@@ -103,11 +106,18 @@ const styles = StyleSheet.create({
   userText: {
     color: "#FFFFFF",
   },
-  avatarSmall: {
+  avatarContainer: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: "#FFC1D2", // Fallback color
+    backgroundColor: "#E4DAFF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#6C5CE7",
   },
   messageTimeContainer: {
     alignItems: "flex-end",

@@ -43,16 +43,32 @@ export default function TabLayout() {
           ios: {
             // Use a transparent background on iOS to show the blur effect
             position: "absolute",
+            elevation: 0,
+            height: 85,
+            borderTopWidth: 0,
           },
-          default: {},
+          default: {
+            height: 65,
+            borderTopWidth: 0,
+            elevation: 8,
+            shadowColor: Colors[colorScheme ?? "light"].tint,
+            shadowOffset: {width: 0, height: -3},
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+          },
         }),
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "600",
+          marginBottom: Platform.OS === "ios" ? 0 : 8,
+        },
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
           tabBarIcon: ({color}) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <IconSymbol size={26} name="house.fill" color={color} />
           ),
         }}
       />
@@ -61,16 +77,7 @@ export default function TabLayout() {
         options={{
           title: "Chat",
           tabBarIcon: ({color}) => (
-            <IconSymbol size={28} name="text.bubble.fill" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="mood"
-        options={{
-          title: "Mood",
-          tabBarIcon: ({color}) => (
-            <IconSymbol size={28} name="face.smiling" color={color} />
+            <IconSymbol size={26} name="text.bubble.fill" color={color} />
           ),
         }}
       />
@@ -79,7 +86,7 @@ export default function TabLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({color}) => (
-            <IconSymbol size={28} name="person.fill" color={color} />
+            <IconSymbol size={26} name="person.fill" color={color} />
           ),
         }}
       />

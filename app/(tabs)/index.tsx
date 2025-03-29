@@ -1,144 +1,212 @@
+import React from "react";
 import {
-  Image,
   StyleSheet,
   TouchableOpacity,
   View,
   ScrollView,
   Text,
   SafeAreaView,
+  Image,
+  Dimensions,
 } from "react-native";
-import {Link} from "expo-router";
 import {LinearGradient} from "expo-linear-gradient";
+import {useRouter} from "expo-router";
+import {useAuth} from "@/src/context/AuthContext";
+import {Colors} from "@/constants/Colors";
+import {useColorScheme} from "@/hooks/useColorScheme";
+import Animated, {FadeInDown, FadeInRight} from "react-native-reanimated";
 
-import {ThemedText} from "@/components/ThemedText";
-import {ThemedView} from "@/components/ThemedView";
+const {width} = Dimensions.get("window");
+const CARD_WIDTH = width * 0.8;
 
-interface FeatureCardProps {
-  title: string;
-  emoji: string;
-  description: string;
-  linkTo: string;
-}
-
-const FeatureCard = ({title, emoji, description, linkTo}: FeatureCardProps) => (
-  <Link href={linkTo as any} asChild>
-    <TouchableOpacity>
-      <ThemedView style={styles.featureCard}>
-        <Text style={styles.featureEmoji}>{emoji}</Text>
-        <ThemedText type="subtitle" style={styles.featureTitle}>
-          {title}
-        </ThemedText>
-        <ThemedText style={styles.featureDescription}>{description}</ThemedText>
-      </ThemedView>
-    </TouchableOpacity>
-  </Link>
+// Placeholder avatar component when images aren't available
+const PlaceholderAvatar: React.FC<{color: string; size: number}> = ({color, size}) => (
+  <View
+    style={{
+      width: size,
+      height: size,
+      borderRadius: size / 2,
+      backgroundColor: color,
+      justifyContent: "center",
+      alignItems: "center",
+    }}>
+    <Text style={{color: "white", fontSize: size / 3, fontWeight: "bold"}}>
+      AI
+    </Text>
+  </View>
 );
 
-interface QuoteCardProps {
-  quote: string;
-  author: string;
+interface BotCardProps {
+  title: string;
+  description: string;
+  color1: string;
+  color2: string;
+  onPress: () => void;
+  delay?: number;
+  emoji: string;
 }
 
-const QuoteCard = ({quote, author}: QuoteCardProps) => (
-  <ThemedView style={styles.quoteCard}>
-    <ThemedText style={styles.quoteText}>"{quote}"</ThemedText>
-    <ThemedText style={styles.quoteAuthor}>— {author}</ThemedText>
-  </ThemedView>
+const BotCard = ({
+  title,
+  description,
+  color1,
+  color2,
+  onPress,
+  delay = 0,
+  emoji,
+}: BotCardProps) => (
+  <Animated.View entering={FadeInRight.delay(delay).springify()}>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
+      <LinearGradient
+        colors={[color1, color2]}
+        start={{x: 0, y: 0}}
+        end={{x: 1, y: 1}}
+        style={styles.botCard}>
+        <View style={styles.botAvatarContainer}>
+          <Text style={styles.botEmoji}>{emoji}</Text>
+        </View>
+        <View style={styles.botInfo}>
+          <Text style={styles.botTitle}>{title}</Text>
+          <Text style={styles.botDescription}>{description}</Text>
+        </View>
+      </LinearGradient>
+    </TouchableOpacity>
+  </Animated.View>
 );
 
 export default function HomeScreen() {
+  const router = useRouter();
+  interface AuthUser {
+    displayName?: string;
+    photoURL?: string;
+  }
+  const {user} = useAuth() as {user: AuthUser | null};
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+
+  const navigateToChat = (personaType: string) => {
+    // Store the selected persona type and navigate to chat
+    router.push("/chat");
+  };
+
+  const firstName = user?.displayName?.split(" ")[0] || "Friend";
+
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: "#fff"}}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: Colors[theme].background}]}>
       <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.contentContainer}>
-        {/* Colorful Welcome Header */}
-        <LinearGradient
-          colors={["#FF9F4A", "#FF6B8A"]}
-          style={styles.headerGradient}
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 1}}>
-          <View style={styles.headerContent}>
-            <Text style={styles.welcome}>Hey Bestie! 👋</Text>
-            <Text style={styles.tagline}>
-              Your ultimate vibe curator & mental health hype-friend
-            </Text>
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}>
+        {/* Animated Header */}
+        <Animated.View entering={FadeInDown.delay(100).springify()}>
+          <View style={styles.header}>
+            <View>
+              <Text style={[styles.welcomeText, {color: Colors[theme].text}]}>
+                Welcome back,
+              </Text>
+              <Text style={[styles.nameText, {color: Colors[theme].text}]}>
+                {firstName} 👋
+              </Text>
+            </View>
+            <TouchableOpacity onPress={() => router.push("/profile")}>
+              {user?.photoURL ? (
+                <Image
+                  source={{uri: user.photoURL}}
+                  style={styles.profileImage}
+                />
+              ) : (
+                <PlaceholderAvatar color="#6C5CE7" size={48} />
+              )}
+            </TouchableOpacity>
           </View>
-        </LinearGradient>
+        </Animated.View>
 
         {/* App Introduction */}
-        <View style={styles.introContainer}>
-          <Text style={styles.introText}>
-            Spill the tea ☕, vent about the icks 😤, or just vibe with me - no
-            judgment, just good energy ✨
-          </Text>
+        <Animated.View entering={FadeInDown.delay(200).springify()}>
+          <View
+            style={[
+              styles.introCard,
+              {backgroundColor: Colors[theme].cardBackground},
+            ]}>
+            <Text style={[styles.introTitle, {color: Colors[theme].text}]}>
+              Your AI Companions Await
+            </Text>
+            <Text
+              style={[styles.introDescription, {color: Colors[theme].icon}]}>
+              Choose a companion that resonates with you today. Each offers
+              unique perspectives and support for whatever you're going through.
+            </Text>
+          </View>
+        </Animated.View>
+
+        {/* Bot Selection Section */}
+        <Text style={[styles.sectionTitle, {color: Colors[theme].text}]}>
+          Choose Your Chat Buddy
+        </Text>
+
+        <View style={styles.botsContainer}>
+          <BotCard
+            title="Supportive Friend"
+            description="A reliable companion for everyday conversations and support"
+            color1="#6C5CE7"
+            color2="#8B5CF6"
+            emoji="🤗"
+            onPress={() => navigateToChat("best_friend")}
+            delay={300}
+          />
+
+          <BotCard
+            title="Empathetic Listener"
+            description="Nurturing, caring and emotionally attuned to your needs"
+            color1="#FF7EB3"
+            color2="#FF4993"
+            emoji="💖"
+            onPress={() => navigateToChat("girlfriend")}
+            delay={400}
+          />
+
+          <BotCard
+            title="Motivational Coach"
+            description="Encouraging, supportive and focused on your growth"
+            color1="#0ABDE3"
+            color2="#0984E3"
+            emoji="💪"
+            onPress={() => navigateToChat("boyfriend")}
+            delay={500}
+          />
         </View>
 
-        {/* Quick Access Buttons */}
-        <View style={styles.quickLinksContainer}>
-          <Link href="/chat" asChild>
-            <TouchableOpacity
-              style={[styles.quickLinkButton, styles.chatButton]}>
-              <Text style={styles.quickLinkText}>Start Vibing 💫</Text>
-            </TouchableOpacity>
-          </Link>
-          <Link href="/mood" asChild>
-            <TouchableOpacity
-              style={[styles.quickLinkButton, styles.moodButton]}>
-              <Text style={styles.quickLinkText}>Mood Diary 📓</Text>
-            </TouchableOpacity>
-          </Link>
-        </View>
+        {/* Recent Conversations */}
+        <Text style={[styles.sectionTitle, {color: Colors[theme].text}]}>
+          Recent Conversations
+        </Text>
 
-        {/* Features Section */}
-        <Text style={styles.sectionTitle}>Why You'll Love This</Text>
-        <View style={styles.featuresContainer}>
-          <FeatureCard
-            title="Real Talk Only"
-            emoji="💯"
-            description="Keep it 💯 with me - no toxic positivity, just real convos"
-            linkTo="/chat"
-          />
-          <FeatureCard
-            title="Vibe Analytics"
-            emoji="📊"
-            description="Track your mood waves & slay your feels"
-            linkTo="/mood"
-          />
-          <FeatureCard
-            title="Lit Strategies"
-            emoji="🔥"
-            description="Get hype-approved ways to handle stress"
-            linkTo="/chat"
-          />
-        </View>
-
-        {/* Affirmations/Quotes Section */}
-        <Text style={styles.sectionTitle}>Daily Hype 💪</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.quotesScrollContainer}>
-          <QuoteCard
-            quote="You're the main character - act like it! 🎬"
-            author="Gen Z Wisdom"
-          />
-          <QuoteCard
-            quote="Bad vibes? Not today, Satan! 😇"
-            author="Mood Mantra"
-          />
-          <QuoteCard
-            quote="Progress > Perfection, always 🏆"
-            author="Growth Gang"
-          />
-        </ScrollView>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Remember: You're that girl 💅 - and we stan!
-          </Text>
-        </View>
+        <Animated.View entering={FadeInDown.delay(600).springify()}>
+          <TouchableOpacity
+            style={[
+              styles.recentChatCard,
+              {backgroundColor: Colors[theme].cardBackground},
+            ]}
+            onPress={() => router.push("/chat")}>
+            <View style={styles.recentChatAvatar}>
+              <Text style={styles.recentChatEmoji}>🤗</Text>
+            </View>
+            <View style={styles.recentChatInfo}>
+              <Text
+                style={[styles.recentChatName, {color: Colors[theme].text}]}>
+                Supportive Friend
+              </Text>
+              <Text
+                style={[styles.recentChatPreview, {color: Colors[theme].icon}]}
+                numberOfLines={1}>
+                Hey, how's your day going? I've been...
+              </Text>
+            </View>
+            <Text style={[styles.recentChatTime, {color: Colors[theme].icon}]}>
+              2m ago
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -148,166 +216,150 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  contentContainer: {
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
     paddingBottom: 40,
   },
-  headerGradient: {
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    height: 200,
-    paddingHorizontal: 25,
-    paddingTop: 50,
-    paddingBottom: 30,
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 10},
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 8,
-  },
-  headerContent: {
-    alignItems: "flex-start",
-  },
-  welcome: {
-    fontSize: 34,
-    fontWeight: "800",
-    color: "white",
-    marginBottom: 8,
-    fontFamily: "Inter_900Black",
-    textShadowColor: "rgba(0,0,0,0.1)",
-    textShadowOffset: {width: 1, height: 1},
-    textShadowRadius: 3,
-  },
-  tagline: {
-    fontSize: 18,
-    color: "white",
-    opacity: 0.95,
-    fontFamily: "Inter_600SemiBold",
-    lineHeight: 24,
-  },
-  introContainer: {
-    margin: 25,
-    marginTop: 30,
-    padding: 20,
-    borderRadius: 20,
-    backgroundColor: "#FFF8F6",
-    borderLeftWidth: 5,
-    borderLeftColor: "#FF9F4A",
-  },
-  introText: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: "#444",
-    fontFamily: "Inter_500Medium",
-  },
-  quickLinksContainer: {
+  header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginHorizontal: 25,
-    marginBottom: 25,
-    gap: 15,
-  },
-  quickLinkButton: {
-    flex: 1,
-    paddingVertical: 18,
-    borderRadius: 15,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    marginBottom: 24,
+    marginTop: 10,
   },
-  chatButton: {
-    backgroundColor: "#FF6B8A",
-  },
-  moodButton: {
-    backgroundColor: "#6B9AFF",
-  },
-  quickLinkText: {
-    color: "white",
-    fontWeight: "700",
+  welcomeText: {
     fontSize: 16,
-    fontFamily: "Inter_700Bold",
+    fontWeight: "400",
   },
-  sectionTitle: {
-    marginLeft: 25,
-    marginTop: 15,
-    marginBottom: 20,
-    fontSize: 22,
-    fontWeight: "800",
-    color: "#333",
-    fontFamily: "Inter_800ExtraBold",
+  nameText: {
+    fontSize: 24,
+    fontWeight: "700",
+    marginTop: -4,
   },
-  featuresContainer: {
-    paddingHorizontal: 25,
-    gap: 15,
+  profileImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#E0E0E0",
   },
-  featureCard: {
-    backgroundColor: "white",
+  introCard: {
     borderRadius: 20,
     padding: 20,
+    marginBottom: 30,
     shadowColor: "#000",
-    shadowOffset: {width: 0, height: 5},
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  featureEmoji: {
-    fontSize: 36,
-    marginBottom: 12,
-  },
-  featureTitle: {
+  introTitle: {
     fontSize: 20,
-    fontWeight: "700",
+    fontWeight: "600",
     marginBottom: 8,
-    color: "#333",
-    fontFamily: "Inter_700Bold",
   },
-  featureDescription: {
+  introDescription: {
     fontSize: 14,
-    color: "#666",
+    fontWeight: "400",
     lineHeight: 20,
-    fontFamily: "Inter_400Regular",
   },
-  quotesScrollContainer: {
-    paddingLeft: 25,
-    paddingRight: 15,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 16,
   },
-  quoteCard: {
-    backgroundColor: "#F8F9FA",
-    borderRadius: 15,
-    padding: 20,
-    marginRight: 15,
-    width: 280,
+  botsContainer: {
+    marginBottom: 30,
+    gap: 16,
+  },
+  botCard: {
+    height: 100,
+    borderRadius: 20,
+    flexDirection: "row",
+    overflow: "hidden",
+    alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+    paddingLeft: 10,
+  },
+  botAvatarContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 5,
+  },
+  botEmoji: {
+    fontSize: 40,
+  },
+  botInfo: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  botTitle: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  botDescription: {
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: 12,
+    fontWeight: "400",
+  },
+  recentChatCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
     elevation: 2,
   },
-  quoteText: {
-    fontSize: 15,
-    lineHeight: 22,
-    marginBottom: 8,
-    color: "#444",
-    fontStyle: "italic",
-    fontFamily: "Inter_500Medium",
+  recentChatAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#6C5CE7",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  quoteAuthor: {
+  recentChatEmoji: {
+    fontSize: 28,
+  },
+  recentChatInfo: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  recentChatName: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 3,
+  },
+  recentChatPreview: {
+    fontSize: 13,
+    fontWeight: "400",
+  },
+  recentChatTime: {
     fontSize: 12,
-    color: "#888",
-    fontFamily: "Inter_600SemiBold",
-  },
-  footer: {
-    marginTop: 35,
-    marginBottom: 25,
-    paddingHorizontal: 25,
-  },
-  footerText: {
-    fontSize: 14,
-    color: "#666",
-    textAlign: "center",
-    lineHeight: 20,
-    fontFamily: "Inter_500Medium",
+    fontWeight: "400",
+    marginLeft: 8,
   },
 });
