@@ -17,7 +17,7 @@ const ChatMessage = ({
       ]}>
       {isBot && (
         <View style={styles.avatarContainer}>
-          <Text style={styles.avatarText}>AI</Text>
+          <Text style={styles.avatarText}>{isSystemMessage ? "🔔" : "🤖"}</Text>
         </View>
       )}
 
@@ -79,13 +79,13 @@ const styles = StyleSheet.create({
   messageBubble: {
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    maxWidth: "80%",
-    elevation: 1,
+    paddingVertical: 12,
+    maxWidth: "75%",
     shadowColor: "#000",
     shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 2,
+    elevation: 1,
   },
   botBubble: {
     backgroundColor: "#F0F0F0",
@@ -107,17 +107,15 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   avatarContainer: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "#E4DAFF",
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#E4E0FF",
     justifyContent: "center",
     alignItems: "center",
   },
   avatarText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#6C5CE7",
+    fontSize: 16,
   },
   messageTimeContainer: {
     alignItems: "flex-end",
