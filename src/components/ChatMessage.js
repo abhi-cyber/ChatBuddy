@@ -1,7 +1,12 @@
 import React from "react";
 import {View, Text, StyleSheet, Image} from "react-native";
 
-const ChatMessage = ({message, isFallback, isSystemMessage}) => {
+const ChatMessage = ({
+  message,
+  isFallback,
+  isSystemMessage,
+  personaStyles = {},
+}) => {
   const isBot = message.sender === "bot";
 
   return (
@@ -24,12 +29,20 @@ const ChatMessage = ({message, isFallback, isSystemMessage}) => {
           isBot ? styles.botBubble : styles.userBubble,
           isSystemMessage && styles.systemMessageBubble,
           isFallback && styles.fallbackBubble,
+          // Add persona-specific styles if provided
+          isBot &&
+            personaStyles.bubbleColor && {
+              backgroundColor: personaStyles.bubbleColor,
+            },
         ]}>
         <Text
           style={[
             styles.messageText,
             isBot ? styles.botText : styles.userText,
             isSystemMessage && styles.systemMessageText,
+            // Add persona-specific text color if provided
+            isBot &&
+              personaStyles.textColor && {color: personaStyles.textColor},
           ]}>
           {message.text}
           {isFallback && !message.text.includes("backup") && (

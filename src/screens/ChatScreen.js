@@ -20,6 +20,7 @@ import {
   suggestMoodFromMessage,
   isApiAvailable,
 } from "../services/chatbotService";
+import {getCurrentPersona, resetConversation} from "../services/geminiService";
 import ChatMessage from "../components/ChatMessage";
 import TypingIndicator from "../components/TypingIndicator";
 
@@ -33,16 +34,10 @@ const QUICK_REPLIES = [
   "How to manage stress? 🧘‍♀️",
 ];
 
-const ChatScreen = () => {
+const ChatScreen = ({onChangePersona}) => {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
-  const [messages, setMessages] = useState([
-    {
-      id: "1",
-      text: "Hey bestie! I'm here to vibe with you and chat about whatever's on your mind. How are you feeling today? 💫",
-      sender: "bot",
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [apiStatus, setApiStatus] = useState("online"); // possible values: "online", "offline", "connecting"
@@ -51,6 +46,18 @@ const ChatScreen = () => {
   const [lastApiCheck, setLastApiCheck] = useState(0);
   const flatListRef = useRef(null);
   const quickRepliesRef = useRef(null);
+  const currentPersona = getCurrentPersona();
+
+  // Initialize messages with the current persona's greeting
+  useEffect(() => {
+    setMessages([
+      {
+        id: "1",
+        text: currentPersona.initialMessage,
+        sender: "bot",
+      },
+    ]);
+  }, [currentPersona]);
 
   useEffect(() => {
     if (flatListRef.current) {
@@ -285,6 +292,29 @@ const ChatScreen = () => {
     }
   };
 
+  // Add new function to handle persona change
+  const handleChangePersona = () => {
+    // Ask for confirmation before changing
+    Alert.alert(
+      "Change who you're talking to?",
+      "This will reset your current conversation.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Change",
+          onPress: () => {
+            // Reset the conversation for the current persona before changing
+            resetConversation();
+            onChangePersona();
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -294,12 +324,12 @@ const ChatScreen = () => {
         <View style={styles.header}>
           <View style={styles.profileContainer}>
             <Image
-              source={require("../assets/bot-avatar.png")}
+              source={currentPersona.avatar}
               style={styles.avatar}
-              defaultSource={require("../assets/default-avatar.png")}
+              defaultSource={currentPersona.fallbackAvatar}
             />
             <View>
-              <Text style={styles.botName}>GenZ Therapist</Text>
+              <Text style={styles.botName}>{currentPersona.name} Mode</Text>
               <Text style={styles.botStatus}>
                 {apiStatus === "online"
                   ? "Always here to vibe ✨"
@@ -309,6 +339,12 @@ const ChatScreen = () => {
               </Text>
             </View>
           </View>
+
+          <TouchableOpacity
+            style={styles.changePersonaButton}
+            onPress={handleChangePersona}>
+            <Text style={styles.changePersonaText}>Change</Text>
+          </TouchableOpacity>
         </View>
 
         {/* API Status Banner */}
@@ -339,6 +375,14 @@ const ChatScreen = () => {
               message={item}
               isFallback={item.isFallback}
               isSystemMessage={item.isSystemMessage}
+              personaStyles={{
+                bubbleColor:
+                  item.sender === "bot"
+                    ? currentPersona.bubbleColor
+                    : undefined,
+                textColor:
+                  item.sender === "bot" ? currentPersona.textColor : undefined,
+              }}
             />
           )}
           keyExtractor={(item) => item.id}
@@ -554,6 +598,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#666",
     textAlign: "center",
+  },
+  changePersonaButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+  },
+  changePersonaText: {
+    color: "white",
+    fontSize: 13,
+    fontWeight: "500",
   },
 });
 

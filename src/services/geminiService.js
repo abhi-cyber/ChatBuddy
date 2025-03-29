@@ -1,5 +1,6 @@
 import axios from "axios";
 import config from "../config/environment";
+import {PERSONA_DETAILS, DEFAULT_PERSONA} from "../utils/personaConstants";
 
 // Using the API key from environment config
 const API_KEY = config.GEMINI_API_KEY;
@@ -8,30 +9,30 @@ const API_KEY = config.GEMINI_API_KEY;
 const API_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
-// System prompt to guide Gemini's responses
-const SYSTEM_PROMPT = `You are GenZ Therapist, a mental health support chatbot for young adults. 
-- Use Gen Z language, slang, and emojis (like "vibing", "bestie", "fr", "no cap")
-- Be supportive, empathetic, but NOT clinical or formal
-- For serious mental health concerns, gently suggest professional help
-- Keep responses brief (1-3 sentences max)
-- Respond to the user's emotions and problems in a supportive way`;
+// Store conversation history based on the selected persona
+let currentPersona = DEFAULT_PERSONA;
+let conversationHistories = {};
 
-// Store conversation history - FIXED: Removed "system" role which isn't supported by the API
-// Instead, we'll inject the system prompt as the first message from a user
-let conversationHistory = [
-  {
-    role: "user",
-    parts: [{text: "Please act as a GenZ Therapist. " + SYSTEM_PROMPT}],
-  },
-  {
-    role: "model",
-    parts: [
-      {
-        text: "Hey bestie! I'm here to vibe with you and chat about whatever's on your mind. I'll keep it real and use Gen Z slang, no cap! How can I help you today? 💫",
-      },
-    ],
-  },
-];
+// Initialize conversation histories for each persona
+Object.keys(PERSONA_DETAILS).forEach((personaType) => {
+  const persona = PERSONA_DETAILS[personaType];
+  conversationHistories[personaType] = [
+    {
+      role: "user",
+      parts: [
+        {text: `Please act as a ${persona.name}. ${persona.systemPrompt}`},
+      ],
+    },
+    {
+      role: "model",
+      parts: [
+        {
+          text: persona.initialMessage,
+        },
+      ],
+    },
+  ];
+});
 
 // Maximum number of messages to keep in history (to manage token limits)
 const MAX_CONVERSATION_LENGTH = 10;
@@ -56,12 +57,58 @@ const delay = (retryCount) => {
 };
 
 /**
+ * Set the current persona for the conversation
+ * @param {string} personaType - The persona type to use
+ */
+export const setPersona = (personaType) => {
+  if (PERSONA_DETAILS[personaType]) {
+    currentPersona = personaType;
+    console.log(`Persona set to: ${PERSONA_DETAILS[personaType].name}`);
+  } else {
+    console.error(`Invalid persona type: ${personaType}`);
+    currentPersona = DEFAULT_PERSONA;
+  }
+};
+
+/**
+ * Get the current persona details
+ * @returns {Object} The current persona details
+ */
+export const getCurrentPersona = () => {
+  return PERSONA_DETAILS[currentPersona];
+};
+
+/**
+ * Reset the conversation history for the current persona
+ */
+export const resetConversation = () => {
+  const persona = PERSONA_DETAILS[currentPersona];
+  conversationHistories[currentPersona] = [
+    {
+      role: "user",
+      parts: [
+        {text: `Please act as a ${persona.name}. ${persona.systemPrompt}`},
+      ],
+    },
+    {
+      role: "model",
+      parts: [
+        {
+          text: persona.initialMessage,
+        },
+      ],
+    },
+  ];
+};
+
+/**
  * Generate a response from the Gemini API with retry logic
  * @param {string} userMessage - The user's message
  * @returns {Promise<string>} - The AI response
  */
 export const generateGeminiResponse = async (userMessage) => {
   let retries = 0;
+  const conversationHistory = conversationHistories[currentPersona];
 
   while (retries <= MAX_RETRIES) {
     try {
@@ -74,10 +121,13 @@ export const generateGeminiResponse = async (userMessage) => {
           // Keep our initial "system" context messages
           conversationHistory[0],
           conversationHistory[1],
-          // Keep the most recent messages
+          // And the most recent messages
           ...conversationHistory.slice(-(MAX_CONVERSATION_LENGTH - 2)),
         ];
       }
+
+      // Save the updated conversation history
+      conversationHistories[currentPersona] = conversationHistory;
 
       console.log(
         `Calling Gemini API (attempt ${retries + 1}/${MAX_RETRIES + 1})`
@@ -107,6 +157,9 @@ export const generateGeminiResponse = async (userMessage) => {
 
       // Add AI response to conversation history
       conversationHistory.push({role: "model", parts: [{text: responseText}]});
+
+      // Save the updated conversation history again
+      conversationHistories[currentPersona] = conversationHistory;
 
       return responseText;
     } catch (error) {
@@ -152,27 +205,6 @@ export const generateGeminiResponse = async (userMessage) => {
   }
 
   throw new Error("Maximum retries exceeded. API appears to be unavailable.");
-};
-
-/**
- * Reset the conversation history
- */
-export const resetConversation = () => {
-  // FIXED: Reset with the proper format (no "system" role)
-  conversationHistory = [
-    {
-      role: "user",
-      parts: [{text: "Please act as a GenZ Therapist. " + SYSTEM_PROMPT}],
-    },
-    {
-      role: "model",
-      parts: [
-        {
-          text: "Hey bestie! I'm here to vibe with you and chat about whatever's on your mind. I'll keep it real and use Gen Z slang, no cap! How can I help you today? 💫",
-        },
-      ],
-    },
-  ];
 };
 
 /**
