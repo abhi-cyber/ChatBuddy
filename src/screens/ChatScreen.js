@@ -245,17 +245,6 @@ const ChatScreen = () => {
         );
       }
 
-      // Optional: Analyze sentiment to suggest a mood tracking entry
-      const suggestedMood = await suggestMoodFromMessage(text);
-
-      // If message strongly indicates a mood, offer to save it
-      // This is optional and can be triggered for messages with clear emotional content
-      if (["very_sad", "sad", "very_good"].includes(suggestedMood)) {
-        console.log("Detected mood in message:", suggestedMood);
-        // You could show a prompt to the user or automatically log the mood
-        // saveMoodEntry(suggestedMood);
-      }
-
       setIsTyping(false);
 
       const botMessage = {

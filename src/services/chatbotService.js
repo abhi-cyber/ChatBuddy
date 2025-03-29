@@ -201,18 +201,3 @@ export const processChatbotResponse = async (userInput) => {
     };
   }
 };
-
-/**
- * Analyze user message for mood tracking integration
- * @param {string} message - User message to analyze
- * @returns {Promise<string>} - Suggested mood value
- */
-export const suggestMoodFromMessage = async (message) => {
-  try {
-    const sentiment = await analyzeSentiment(message);
-    return sentiment.mood;
-  } catch (error) {
-    console.error("Error suggesting mood from message:", error);
-    return "neutral"; // Default fallback
-  }
-};
