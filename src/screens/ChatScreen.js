@@ -319,8 +319,8 @@ const ChatScreen = ({onChangePersona}) => {
   const getPersonaName = (originalName) => {
     const nameMap = {
       "Best Friend": "Supportive Friend",
-      Girlfriend: "Empathetic Listener",
-      Boyfriend: "Motivational Coach",
+      "Empathetic Listener": "Empathetic Listener",
+      "Motivational Coach": "Motivational Coach",
     };
     return nameMap[originalName] || originalName;
   };

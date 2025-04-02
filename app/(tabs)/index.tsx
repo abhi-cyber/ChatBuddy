@@ -9,18 +9,21 @@ import {
   Image,
   Dimensions,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {LinearGradient} from "expo-linear-gradient";
 import {useRouter} from "expo-router";
 import {useAuth} from "@/src/context/AuthContext";
 import {Colors} from "@/constants/Colors";
 import {useColorScheme} from "@/hooks/useColorScheme";
 import Animated, {FadeInDown, FadeInRight} from "react-native-reanimated";
-
-const {width} = Dimensions.get("window");
-const CARD_WIDTH = width * 0.8;
+import {setPersona} from "@/src/services/geminiService";
+import {PERSONA_STORAGE_KEY} from "@/src/utils/personaConstants";
 
 // Placeholder avatar component when images aren't available
-const PlaceholderAvatar: React.FC<{color: string; size: number}> = ({color, size}) => (
+const PlaceholderAvatar: React.FC<{color: string; size: number}> = ({
+  color,
+  size,
+}) => (
   <View
     style={{
       width: size,
@@ -84,9 +87,21 @@ export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const theme = colorScheme === "dark" ? "dark" : "light";
 
-  const navigateToChat = (personaType: string) => {
-    // Store the selected persona type and navigate to chat
-    router.push("/chat");
+  const navigateToChat = async (personaType: string) => {
+    try {
+      // Save selection to AsyncStorage
+      await AsyncStorage.setItem(PERSONA_STORAGE_KEY, personaType);
+
+      // Update geminiService with selected persona
+      setPersona(personaType);
+
+      // Navigate to chat
+      router.push("/chat");
+    } catch (error) {
+      console.error("Error setting persona:", error);
+      // Navigate even if there's an error
+      router.push("/chat");
+    }
   };
 
   const firstName = user?.displayName?.split(" ")[0] || "Friend";
@@ -161,7 +176,7 @@ export default function HomeScreen() {
             color1="#FF7EB3"
             color2="#FF4993"
             emoji="💖"
-            onPress={() => navigateToChat("girlfriend")}
+            onPress={() => navigateToChat("empathetic_listener")}
             delay={400}
           />
 
@@ -171,7 +186,7 @@ export default function HomeScreen() {
             color1="#0ABDE3"
             color2="#0984E3"
             emoji="💪"
-            onPress={() => navigateToChat("boyfriend")}
+            onPress={() => navigateToChat("motivational_coach")}
             delay={500}
           />
         </View>
