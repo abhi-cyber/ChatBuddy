@@ -1,4 +1,5 @@
 import Constants from "expo-constants";
+import {Platform} from "react-native";
 
 /**
  * Environment variable utility
@@ -51,13 +52,20 @@ export const GEMINI_API_KEY = getEnvVar(
   "AIzaSyCNQXqkTIDBfk5gy1idtlHjz2_TwkSgOM0"
 );
 
+// Android client ID specifically for Google auth on Android platform
+const ANDROID_CLIENT_ID = getEnvVar(
+  "ANDROID_CLIENT_ID",
+  "652705687282-d7urg896rajfuuc9cssi7mirhrrq9216.apps.googleusercontent.com"
+);
+
 // Google OAuth
 export const GOOGLE_AUTH = {
   expoClientId: getEnvVar(
     "EXPO_CLIENT_ID",
     "652705687282-9h54d0mc6crrjqn17oo06s9kk7q54ari.apps.googleusercontent.com"
   ),
-  androidClientId: getEnvVar("ANDROID_CLIENT_ID", ""),
+  // Ensure androidClientId is explicitly set when on Android platform
+  androidClientId: ANDROID_CLIENT_ID,
   iosClientId: getEnvVar(
     "IOS_CLIENT_ID",
     "652705687282-ahrsrnpej70fhqprke8gop8bj3fsil41.apps.googleusercontent.com"

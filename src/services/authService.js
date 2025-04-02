@@ -53,9 +53,11 @@ export const useGoogleAuth = () => {
     redirectUri,
   };
 
-  // Only add iOS client ID when running on iOS
+  // Add platform-specific client IDs
   if (Platform.OS === "ios") {
     config.iosClientId = IOS_CLIENT_ID;
+  } else if (Platform.OS === "android") {
+    config.androidClientId = ANDROID_CLIENT_ID;
   } else if (Platform.OS === "web") {
     config.expoClientId = EXPO_CLIENT_ID;
   }
