@@ -3,28 +3,32 @@ import {
   subscribeToAuthChanges,
   getCurrentUser,
   handleSignOut,
-  useGoogleAuth,
-  handleGoogleSignIn,
+  // useGoogleAuth, // Commented out
+  // handleGoogleSignIn, // Commented out
+  signInWithEmailPassword,
+  signUpWithEmailPassword,
 } from "../services/authService";
 
 // Create auth context
 const AuthContext = createContext({
   user: null,
   isLoading: true,
-  signIn: async () => {},
+  signIn: async (email, password) => {},
+  signUp: async (email, password, displayName) => {},
   signOut: async () => {},
-  promptGoogleSignIn: async () => {},
 });
 
 // Auth provider component
 export const AuthProvider = ({children}) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Google auth setup
-  const {request, response, promptAsync} = useGoogleAuth();
+  // Removed Google auth setup
+  // const {request, response, promptAsync} = useGoogleAuth();
 
-  // Handle Google Sign-In response
+  // Removed Google Sign-In response handler
+  /* 
   useEffect(() => {
     if (response?.type === "success") {
       setIsLoading(true);
@@ -34,6 +38,7 @@ export const AuthProvider = ({children}) => {
       });
     }
   }, [response]);
+  */
 
   // Subscribe to auth state changes
   useEffect(() => {
@@ -53,19 +58,38 @@ export const AuthProvider = ({children}) => {
   const value = {
     user,
     isLoading,
-    signIn: async () => {
+    error,
+    signUp: async (email, password, displayName) => {
       setIsLoading(true);
-      await promptAsync();
+      setError(null);
+      try {
+        await signUpWithEmailPassword(email, password, displayName);
+      } catch (error) {
+        setError(error.message);
+        setIsLoading(false);
+        throw error;
+      }
+    },
+    signIn: async (email, password) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        await signInWithEmailPassword(email, password);
+      } catch (error) {
+        setError(error.message);
+        setIsLoading(false);
+        throw error;
+      }
     },
     signOut: async () => {
       setIsLoading(true);
-      await handleSignOut();
-    },
-    promptGoogleSignIn: async () => {
-      if (request) {
-        await promptAsync();
-      } else {
-        console.error("Google auth request not ready");
+      setError(null);
+      try {
+        await handleSignOut();
+      } catch (error) {
+        setError(error.message);
+        setIsLoading(false);
+        throw error;
       }
     },
   };

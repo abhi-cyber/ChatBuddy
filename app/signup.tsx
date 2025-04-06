@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Image,
 } from "react-native";
 import {useRouter, Redirect} from "expo-router";
 import {LinearGradient} from "expo-linear-gradient";
@@ -20,14 +19,15 @@ import Animated, {FadeInUp} from "react-native-reanimated";
 import {Ionicons} from "@expo/vector-icons";
 import {SafeAreaView, useSafeAreaInsets} from "react-native-safe-area-context";
 
-export default function LoginScreen() {
-  const {user, isLoading, signIn} = useAuth();
+export default function SignupScreen() {
+  const {user, isLoading, signUp} = useAuth();
   const router = useRouter();
   const colorScheme = useColorScheme();
   const theme = colorScheme === "dark" ? "dark" : "light";
   const insets = useSafeAreaInsets();
 
   // Form state
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -45,15 +45,15 @@ export default function LoginScreen() {
     return <Redirect href="/(tabs)" />;
   }
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setLocalError("Email and password are required");
+  const handleSignup = async () => {
+    if (!name || !email || !password) {
+      setLocalError("All fields are required");
       return;
     }
 
     try {
       setLocalError(null);
-      await signIn(email, password);
+      await signUp(email, password, name);
     } catch (err) {
       // Error handling is done in the AuthContext, but we'll keep this for additional handling
       if (err instanceof Error) {
@@ -90,20 +90,38 @@ export default function LoginScreen() {
             <View style={styles.header}>
               <TouchableOpacity
                 style={styles.backButton}
-                onPress={() => router.push("/")}>
+                onPress={() => router.back()}>
                 <Ionicons name="arrow-back" size={24} color="white" />
               </TouchableOpacity>
             </View>
 
             <Animated.View entering={FadeInUp.duration(800).springify()}>
               <View style={styles.titleContainer}>
-                <Text style={styles.titleText}>Welcome Back</Text>
+                <Text style={styles.titleText}>Create Account</Text>
                 <Text style={styles.subtitleText}>
-                  Sign in to continue your journey with ChatBuddy
+                  Sign up to start your journey with ChatBuddy
                 </Text>
               </View>
 
               <View style={styles.formContainer}>
+                <View style={styles.inputContainer}>
+                  <Ionicons
+                    name="person-outline"
+                    size={20}
+                    color="rgba(255,255,255,0.7)"
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Your Name"
+                    placeholderTextColor="rgba(255,255,255,0.7)"
+                    value={name}
+                    onChangeText={setName}
+                    autoCapitalize="words"
+                    autoCorrect={false}
+                  />
+                </View>
+
                 <View style={styles.inputContainer}>
                   <Ionicons
                     name="mail-outline"
@@ -155,32 +173,29 @@ export default function LoginScreen() {
                   <Text style={styles.errorText}>{localError}</Text>
                 )}
 
-                <TouchableOpacity
-                  style={styles.forgotPasswordButton}
-                  onPress={() => {
-                    /* Handle forgot password */
-                  }}>
-                  <Text style={styles.forgotPasswordText}>
-                    Forgot Password?
-                  </Text>
-                </TouchableOpacity>
+                <Text style={styles.termsText}>
+                  By creating an account, you agree to our Terms of Service and
+                  Privacy Policy
+                </Text>
 
                 <TouchableOpacity
-                  style={styles.loginButton}
-                  onPress={handleLogin}
+                  style={styles.signupButton}
+                  onPress={handleSignup}
                   disabled={isLoading}>
                   {isLoading ? (
                     <ActivityIndicator size="small" color="#6C5CE7" />
                   ) : (
-                    <Text style={styles.loginButtonText}>Login</Text>
+                    <Text style={styles.signupButtonText}>Create Account</Text>
                   )}
                 </TouchableOpacity>
               </View>
 
               <View style={styles.footerContainer}>
-                <Text style={styles.noAccountText}>Don't have an account?</Text>
-                <TouchableOpacity onPress={() => router.push("/signup")}>
-                  <Text style={styles.signupText}>Sign Up</Text>
+                <Text style={styles.hasAccountText}>
+                  Already have an account?
+                </Text>
+                <TouchableOpacity onPress={() => router.push("/login")}>
+                  <Text style={styles.loginText}>Login</Text>
                 </TouchableOpacity>
               </View>
             </Animated.View>
@@ -258,15 +273,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: "center",
   },
-  forgotPasswordButton: {
-    alignSelf: "flex-end",
+  termsText: {
+    color: "rgba(255, 255, 255, 0.7)",
+    fontSize: 12,
+    textAlign: "center",
     marginBottom: 24,
+    lineHeight: 18,
   },
-  forgotPasswordText: {
-    color: "rgba(255, 255, 255, 0.8)",
-    fontSize: 14,
-  },
-  loginButton: {
+  signupButton: {
     backgroundColor: "white",
     height: 56,
     borderRadius: 12,
@@ -281,7 +295,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  loginButtonText: {
+  signupButtonText: {
     color: "#6C5CE7",
     fontSize: 16,
     fontWeight: "600",
@@ -292,12 +306,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 24,
   },
-  noAccountText: {
+  hasAccountText: {
     color: "rgba(255, 255, 255, 0.8)",
     fontSize: 14,
     marginRight: 4,
   },
-  signupText: {
+  loginText: {
     color: "white",
     fontSize: 14,
     fontWeight: "600",

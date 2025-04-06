@@ -8,6 +8,7 @@ import "react-native-reanimated";
 import {AuthProvider} from "@/src/context/AuthContext";
 import {useColorScheme} from "@/hooks/useColorScheme";
 import {Colors} from "@/constants/Colors";
+import {SafeAreaProvider} from "react-native-safe-area-context";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -41,7 +42,6 @@ export default function RootLayout() {
     Colors[theme]
   );
 
-
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -57,22 +57,26 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={customTheme}>
-      <AuthProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: {
-              backgroundColor: Colors[theme].background,
-            },
-            animation: "fade_from_bottom",
-          }}>
-          <Stack.Screen name="(tabs)" options={{headerShown: false}} />
-          <Stack.Screen name="+not-found" />
-          <Stack.Screen name="login" options={{headerShown: false}} />
-        </Stack>
-        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-      </AuthProvider>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider value={customTheme}>
+        <AuthProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: {
+                backgroundColor: Colors[theme].background,
+              },
+              animation: "slide_from_right",
+            }}>
+            <Stack.Screen name="index" options={{headerShown: false}} />
+            <Stack.Screen name="login" options={{headerShown: false}} />
+            <Stack.Screen name="signup" options={{headerShown: false}} />
+            <Stack.Screen name="(tabs)" options={{headerShown: false}} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+        </AuthProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

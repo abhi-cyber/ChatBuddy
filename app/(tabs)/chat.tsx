@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react";
 import {StyleSheet, View} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Stack} from "expo-router";
+import {SafeAreaProvider} from "react-native-safe-area-context";
 
 import ChatScreen from "@/src/screens/ChatScreen";
 import PersonaSelectionScreen from "@/src/screens/PersonaSelectionScreen";

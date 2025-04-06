@@ -1,11 +1,10 @@
 import Constants from "expo-constants";
-import {Platform} from "react-native";
 
 /**
  * Environment variable utility
  *
  * This utility handles retrieving environment variables safely across different environments
- * (development, production, etc.) and provides fallbacks.
+ * (development, production, etc.) and provides fallbacks for non-sensitive configuration only.
  */
 
 // Get environment variables from Expo's manifest extra or process.env
@@ -19,64 +18,34 @@ const getEnvVar = (name, fallback = "") => {
     return process.env[name];
   }
 
-  // Fall back to hardcoded value if necessary
+  // Fall back to default value if provided and the variable is non-sensitive
   return fallback;
 };
 
-// Firebase Configuration
+// Firebase Configuration - no fallbacks for sensitive data
 export const FIREBASE_CONFIG = {
-  apiKey: getEnvVar(
-    "FIREBASE_API_KEY",
-    "AIzaSyBu_tkCFY0Swm4HDdM7dO6by-RBtgi1saU"
-  ),
-  authDomain: getEnvVar(
-    "FIREBASE_AUTH_DOMAIN",
-    "genztherapist-8c68d.firebaseapp.com"
-  ),
-  projectId: getEnvVar("FIREBASE_PROJECT_ID", "genztherapist-8c68d"),
-  storageBucket: getEnvVar(
-    "FIREBASE_STORAGE_BUCKET",
-    "genztherapist-8c68d.firebasestorage.app"
-  ),
-  messagingSenderId: getEnvVar("FIREBASE_MESSAGING_SENDER_ID", "334687005447"),
-  appId: getEnvVar(
-    "FIREBASE_APP_ID",
-    "1:334687005447:web:0232a562b3b3b950c633a2"
-  ),
-  measurementId: getEnvVar("FIREBASE_MEASUREMENT_ID", "G-JFYTPER77P"),
+  apiKey: getEnvVar("FIREBASE_API_KEY"),
+  authDomain: getEnvVar("FIREBASE_AUTH_DOMAIN"),
+  projectId: getEnvVar("FIREBASE_PROJECT_ID"),
+  storageBucket: getEnvVar("FIREBASE_STORAGE_BUCKET"),
+  messagingSenderId: getEnvVar("FIREBASE_MESSAGING_SENDER_ID"),
+  appId: getEnvVar("FIREBASE_APP_ID"),
+  measurementId: getEnvVar("FIREBASE_MEASUREMENT_ID"),
 };
 
-// Gemini API
-export const GEMINI_API_KEY = getEnvVar(
-  "GEMINI_API_KEY",
-  "AIzaSyCNQXqkTIDBfk5gy1idtlHjz2_TwkSgOM0"
-);
+// Gemini API - no fallback for API key
+export const GEMINI_API_KEY = getEnvVar("GEMINI_API_KEY");
 
-// Android client ID specifically for Google auth on Android platform
-const ANDROID_CLIENT_ID = getEnvVar(
-  "ANDROID_CLIENT_ID",
-  "652705687282-d7urg896rajfuuc9cssi7mirhrrq9216.apps.googleusercontent.com"
-);
-
-// Google OAuth
+// Google OAuth - no fallbacks for sensitive credentials
 export const GOOGLE_AUTH = {
-  expoClientId: getEnvVar(
-    "EXPO_CLIENT_ID",
-    "652705687282-9h54d0mc6crrjqn17oo06s9kk7q54ari.apps.googleusercontent.com"
-  ),
+  expoClientId: getEnvVar("EXPO_CLIENT_ID"),
   // Ensure androidClientId is explicitly set when on Android platform
-  androidClientId: ANDROID_CLIENT_ID,
-  iosClientId: getEnvVar(
-    "IOS_CLIENT_ID",
-    "652705687282-ahrsrnpej70fhqprke8gop8bj3fsil41.apps.googleusercontent.com"
-  ),
-  webClientId: getEnvVar(
-    "WEB_CLIENT_ID",
-    "652705687282-3ahec6hnun7kvnvg2g8k471ci4looqoc.apps.googleusercontent.com"
-  ),
+  androidClientId: getEnvVar("ANDROID_CLIENT_ID"),
+  iosClientId: getEnvVar("IOS_CLIENT_ID"),
+  webClientId: getEnvVar("WEB_CLIENT_ID"),
 };
 
-// Chat Configuration
+// Chat Configuration - keeping fallbacks for non-sensitive config
 export const CHAT_CONFIG = {
   maxConversationLength: parseInt(getEnvVar("MAX_CONVERSATION_LENGTH", "10")),
   defaultTemperature: parseFloat(getEnvVar("DEFAULT_TEMPERATURE", "0.7")),

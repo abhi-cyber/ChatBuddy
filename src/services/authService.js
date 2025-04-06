@@ -1,47 +1,100 @@
 import {
-  GoogleAuthProvider,
-  signInWithCredential,
+  // GoogleAuthProvider, // Commented out for now
+  // signInWithCredential, // Commented out for now
   signOut,
   onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
-import * as WebBrowser from "expo-web-browser";
-import * as Google from "expo-auth-session/providers/google";
+// import * as WebBrowser from "expo-web-browser"; // Commented out for now
+// import * as Google from "expo-auth-session/providers/google"; // Commented out for now
 import {getFirebaseAuth} from "./firebaseService";
 import {Platform} from "react-native";
 import Constants from "expo-constants";
-import {GOOGLE_AUTH} from "../utils/env";
+// import {GOOGLE_AUTH} from "../utils/env"; // Commented out for now
 
-// Register for a web browser redirect
-WebBrowser.maybeCompleteAuthSession();
+// Comment out WebBrowser call
+// WebBrowser.maybeCompleteAuthSession();
 
-// Client IDs now imported from environment utility
-const EXPO_CLIENT_ID = GOOGLE_AUTH.expoClientId;
-const ANDROID_CLIENT_ID = GOOGLE_AUTH.androidClientId;
-const IOS_CLIENT_ID = GOOGLE_AUTH.iosClientId;
-const WEB_CLIENT_ID = GOOGLE_AUTH.webClientId;
+// Comment out Google client IDs
+// const EXPO_CLIENT_ID = GOOGLE_AUTH.expoClientId;
+// const ANDROID_CLIENT_ID = GOOGLE_AUTH.androidClientId;
+// const IOS_CLIENT_ID = GOOGLE_AUTH.iosClientId;
+// const WEB_CLIENT_ID = GOOGLE_AUTH.webClientId;
 
-console.log(`Using OAuth config for platform: ${Platform.OS}`);
+console.log(`Using authentication for platform: ${Platform.OS}`);
 
 // Authentication state listeners
 const authStateListeners = [];
 
 /**
- * Initialize Google Sign-In
- * @returns {Object} Auth request object and methods
+ * Sign up with email and password
+ * @param {string} email - User's email
+ * @param {string} password - User's password
+ * @param {string} displayName - User's display name
+ * @returns {Promise<Object>} Firebase user credentials
  */
+export const signUpWithEmailPassword = async (email, password, displayName) => {
+  try {
+    const auth = getFirebaseAuth();
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    // Update the user profile with the display name
+    if (displayName) {
+      await updateProfile(userCredential.user, {
+        displayName: displayName,
+      });
+    }
+
+    console.log("Successfully signed up:", userCredential.user.email);
+    return userCredential;
+  } catch (error) {
+    console.error("Sign up error:", error.message);
+    throw error;
+  }
+};
+
+/**
+ * Sign in with email and password
+ * @param {string} email - User's email
+ * @param {string} password - User's password
+ * @returns {Promise<Object>} Firebase user credentials
+ */
+export const signInWithEmailPassword = async (email, password) => {
+  try {
+    const auth = getFirebaseAuth();
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    console.log("Successfully signed in:", userCredential.user.email);
+    return userCredential;
+  } catch (error) {
+    console.error("Sign in error:", error.message);
+    throw error;
+  }
+};
+
+/* 
+// Google auth section commented out
 export const useGoogleAuth = () => {
   // Set up proper redirect URI based on platform - CRITICAL FOR AUTHORIZATION!
   let redirectUri;
 
   if (Platform.OS === "ios") {
-    // Use the exact iOS URL scheme format provided by Google
-    redirectUri =
-      "com.googleusercontent.apps.652705687282-ahrsrnpej70fhqprke8gop8bj3fsil41:/oauth2redirect/google";
-  } else if (Platform.OS === "web") {
-    redirectUri = "http://localhost:19006";
+    // Correctly format the iOS redirect URI
+    redirectUri = `com.googleusercontent.apps.${GOOGLE_AUTH.iosClientId}:/oauth2redirect/google`;
+    // Remove any `.apps.googleusercontent.com` suffix
+    redirectUri = redirectUri.replace(".apps.googleusercontent.com", "");
   } else {
-    // For Expo Go testing
-    redirectUri = "https://auth.expo.io/@abhi-cyber/GenZTherapist";
+    redirectUri = "https://auth.expo.io/@abhi-cyber/ChatBuddy";
   }
 
   console.log("Auth redirect URI:", redirectUri);
@@ -67,11 +120,6 @@ export const useGoogleAuth = () => {
   return {request, response, promptAsync};
 };
 
-/**
- * Handle Google Sign-In response
- * @param {Object} response - Auth response from Google
- * @returns {Promise<Object>} Firebase user credentials
- */
 export const handleGoogleSignIn = async (response) => {
   console.log("Google sign-in response type:", response?.type);
 
@@ -98,6 +146,7 @@ export const handleGoogleSignIn = async (response) => {
     throw new Error(`Google Sign-In was ${response?.type || "unsuccessful"}`);
   }
 };
+*/
 
 /**
  * Sign out the current user

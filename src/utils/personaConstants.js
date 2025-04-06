@@ -59,4 +59,4 @@ export const PERSONA_DETAILS = {
 
 export const DEFAULT_PERSONA = PERSONA_TYPES.BEST_FRIEND;
 
-export const PERSONA_STORAGE_KEY = "GenZTherapist_SelectedPersona";
+export const PERSONA_STORAGE_KEY = "ChatBuddy_SelectedPersona";

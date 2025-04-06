@@ -6,16 +6,26 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
 } from "react-native";
+import {SafeAreaView, useSafeAreaInsets} from "react-native-safe-area-context";
 import {useAuth} from "../context/AuthContext";
 
 const ProfileScreen = () => {
   const {user, signOut} = useAuth();
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: Math.max(20, insets.top),
+            paddingBottom: Math.max(20, insets.bottom),
+            paddingLeft: Math.max(20, insets.left),
+            paddingRight: Math.max(20, insets.right),
+          },
+        ]}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Profile</Text>
         </View>
@@ -51,9 +61,9 @@ const ProfileScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.versionText}>GenZ Therapist v1.0.0</Text>
+        <Text style={styles.versionText}>Chat Buddy v1.0.0</Text>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -63,6 +73,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F5F5",
   },
   scrollContent: {
+    flexGrow: 1,
     padding: 20,
   },
   header: {

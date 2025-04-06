@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {
   View,
   Text,
@@ -7,12 +7,35 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ActivityIndicator,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
 import {LinearGradient} from "expo-linear-gradient";
 import {useAuth} from "../context/AuthContext";
 
 const LoginScreen = () => {
-  const {signIn, isLoading} = useAuth();
+  const {signIn, signUp, isLoading, error} = useAuth();
+
+  // Form state
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [localError, setLocalError] = useState(null);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setLocalError("Email and password are required");
+      return;
+    }
+
+    try {
+      setLocalError(null);
+      await signIn(email, password);
+    } catch (err) {
+      // Error handling is done in the AuthContext
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -21,48 +44,74 @@ const LoginScreen = () => {
         style={styles.gradient}
         start={{x: 0, y: 0}}
         end={{x: 1, y: 1}}>
-        <View style={styles.contentContainer}>
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../assets/bot-avatar.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-            <Text style={styles.appName}>GenZ Therapist</Text>
-            <Text style={styles.tagline}>
-              Your ultimate vibe curator & mental health hype-friend
-            </Text>
-          </View>
-
-          <View style={styles.welcomeContainer}>
-            <Text style={styles.welcomeTitle}>Welcome, Bestie! 👋</Text>
-            <Text style={styles.welcomeText}>
-              Sign in to track your mood, chat with your AI therapist, and get
-              personalized support.
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            style={styles.googleButton}
-            onPress={signIn}
-            disabled={isLoading}>
-            {isLoading ? (
-              <ActivityIndicator size="small" color="#FF6B8A" />
-            ) : (
-              <>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{flex: 1}}>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <View style={styles.contentContainer}>
+              <View style={styles.logoContainer}>
                 <Image
-                  source={require("../assets/google-logo.png")}
-                  style={styles.googleIcon}
+                  source={require("../assets/bot-avatar.png")}
+                  style={styles.logo}
+                  resizeMode="contain"
                 />
-                <Text style={styles.googleButtonText}>Sign in with Google</Text>
-              </>
-            )}
-          </TouchableOpacity>
+                <Text style={styles.appName}>Chat Buddy</Text>
+                <Text style={styles.tagline}>
+                  Your trusted AI companion for meaningful conversations
+                </Text>
+              </View>
 
-          <Text style={styles.privacyText}>
-            By signing in, you agree to our Terms of Service and Privacy Policy.
-          </Text>
-        </View>
+              <View style={styles.authContainer}>
+                <Text style={styles.authTitle}>Login</Text>
+
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email Address"
+                  placeholderTextColor="rgba(255,255,255,0.7)"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  placeholderTextColor="rgba(255,255,255,0.7)"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                />
+
+                {(localError || error) && (
+                  <Text style={styles.errorText}>{localError || error}</Text>
+                )}
+
+                <TouchableOpacity
+                  style={styles.authButton}
+                  onPress={handleLogin}
+                  disabled={isLoading}>
+                  {isLoading ? (
+                    <ActivityIndicator size="small" color="#FF6B8A" />
+                  ) : (
+                    <Text style={styles.authButtonText}>Login</Text>
+                  )}
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.forgotPasswordButton}>
+                  <Text style={styles.forgotPasswordText}>
+                    Forgot Password?
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.privacyText}>
+                By signing in, you agree to our Terms of Service and Privacy
+                Policy.
+              </Text>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </LinearGradient>
     </SafeAreaView>
   );
@@ -75,24 +124,27 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
   },
+  scrollContent: {
+    flexGrow: 1,
+  },
   contentContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 32,
+    padding: 24,
   },
   logoContainer: {
     alignItems: "center",
-    marginBottom: 60,
+    marginBottom: 32,
   },
   logo: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     marginBottom: 16,
   },
   appName: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: "bold",
     color: "white",
     marginBottom: 8,
@@ -103,43 +155,55 @@ const styles = StyleSheet.create({
     textAlign: "center",
     opacity: 0.9,
   },
-  welcomeContainer: {
+  authContainer: {
+    width: "100%",
     backgroundColor: "rgba(255, 255, 255, 0.2)",
-    padding: 24,
     borderRadius: 16,
-    marginBottom: 40,
-    width: "100%",
-  },
-  welcomeTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 12,
-  },
-  welcomeText: {
-    fontSize: 16,
-    color: "white",
-    lineHeight: 24,
-  },
-  googleButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "white",
-    padding: 16,
-    borderRadius: 30,
-    width: "100%",
+    padding: 24,
     marginBottom: 24,
   },
-  googleIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 12,
+  authTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "white",
+    marginBottom: 20,
+    textAlign: "center",
   },
-  googleButtonText: {
+  input: {
+    width: "100%",
+    height: 50,
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    color: "white",
+  },
+  errorText: {
+    color: "#FFD2D2",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  authButton: {
+    width: "100%",
+    height: 50,
+    backgroundColor: "white",
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  authButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#333",
+    color: "#FF6B8A",
+  },
+  forgotPasswordButton: {
+    alignItems: "center",
+  },
+  forgotPasswordText: {
+    color: "white",
+    fontSize: 14,
+    textDecorationLine: "underline",
   },
   privacyText: {
     fontSize: 12,

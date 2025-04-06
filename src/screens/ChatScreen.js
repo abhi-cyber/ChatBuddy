@@ -10,10 +10,9 @@ import {
   FlatList,
   Image,
   ScrollView,
-  SafeAreaView,
   Alert,
 } from "react-native";
-import {useSafeAreaInsets} from "react-native-safe-area-context";
+import {SafeAreaView, useSafeAreaInsets} from "react-native-safe-area-context";
 import {useBottomTabBarHeight} from "@react-navigation/bottom-tabs";
 import {LinearGradient} from "expo-linear-gradient";
 import {
@@ -328,16 +327,16 @@ const ChatScreen = ({onChangePersona}) => {
   const displayPersonaName = getPersonaName(currentPersona.name);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.container}>
       <KeyboardAvoidingView
-        style={styles.container}
+        style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}>
         <LinearGradient
           colors={["#6C5CE7", "#8B5CF6"]}
           start={{x: 0, y: 0}}
           end={{x: 1, y: 0}}
-          style={styles.header}>
+          style={[styles.header, {paddingTop: Math.max(15, insets.top)}]}>
           <View style={styles.profileContainer}>
             <View style={styles.avatarContainer}>
               <Text style={styles.avatarEmoji}>
@@ -407,7 +406,10 @@ const ChatScreen = ({onChangePersona}) => {
           )}
           keyExtractor={(item) => item.id}
           style={styles.messageList}
-          contentContainerStyle={styles.messageListContent}
+          contentContainerStyle={[
+            styles.messageListContent,
+            {paddingBottom: insets.bottom},
+          ]}
           onLayout={() => flatListRef.current?.scrollToEnd({animated: true})}
           ListFooterComponent={isTyping ? <TypingIndicator /> : null}
         />
@@ -436,7 +438,9 @@ const ChatScreen = ({onChangePersona}) => {
           style={[
             styles.inputSection,
             {
-              paddingBottom: tabBarHeight,
+              paddingBottom: Math.max(12, tabBarHeight + insets.bottom),
+              paddingLeft: Math.max(12, insets.left),
+              paddingRight: Math.max(12, insets.right),
             },
           ]}>
           <View style={styles.inputContainer}>
@@ -468,18 +472,17 @@ const ChatScreen = ({onChangePersona}) => {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#F5F5F5",
-  },
   container: {
     flex: 1,
     backgroundColor: "#F5F5F5",
+  },
+  keyboardView: {
+    flex: 1,
   },
   header: {
     paddingVertical: 15,

@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const STREAK_KEY = "@GenZTherapist:streak";
-const LAST_CHECKIN_DATE_KEY = "@GenZTherapist:lastCheckinDate";
+const STREAK_KEY = "@ChatBuddy:streak";
+const LAST_CHECKIN_DATE_KEY = "@ChatBuddy:lastCheckinDate";
 
 /**
  * Reset streak to zero
