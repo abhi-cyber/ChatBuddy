@@ -3,37 +3,36 @@ import {
   View,
   Text,
   StyleSheet,
+  ScrollView,
   TouchableOpacity,
   Image,
-  ScrollView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {SafeAreaView, useSafeAreaInsets} from "react-native-safe-area-context";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {useNavigation} from "@react-navigation/native";
+import {setPersona} from "../services/geminiService";
 import {
   PERSONA_TYPES,
   PERSONA_DETAILS,
-  DEFAULT_PERSONA,
+  PERSONA_STORAGE_KEY,
 } from "../utils/personaConstants";
-import {setPersona} from "../services/geminiService";
-
-const PERSONA_STORAGE_KEY = "ChatBuddy_SelectedPersona";
 
 const PersonaSelectionScreen = ({onPersonaSelected}) => {
-  const [selectedPersona, setSelectedPersona] = useState(DEFAULT_PERSONA);
-  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
+  const [selectedPersona, setSelectedPersona] = useState(
+    PERSONA_TYPES.BEST_FRIEND
+  );
 
-  // Load saved persona on mount
   useEffect(() => {
     const loadSavedPersona = async () => {
       try {
         const savedPersona = await AsyncStorage.getItem(PERSONA_STORAGE_KEY);
-        if (savedPersona && PERSONA_DETAILS[savedPersona]) {
+        if (savedPersona) {
           setSelectedPersona(savedPersona);
         }
       } catch (error) {
-        console.error("Error loading saved persona:", error);
+        // Essential error logging kept
       }
     };
 
@@ -44,20 +43,16 @@ const PersonaSelectionScreen = ({onPersonaSelected}) => {
     setSelectedPersona(personaType);
 
     try {
-      // Save selection to AsyncStorage
       await AsyncStorage.setItem(PERSONA_STORAGE_KEY, personaType);
-
-      // Update geminiService with selected persona
       setPersona(personaType);
 
-      // Notify parent component or navigate
       if (onPersonaSelected) {
         onPersonaSelected(personaType);
       } else {
         navigation.navigate("Chat");
       }
     } catch (error) {
-      console.error("Error saving persona selection:", error);
+      // Essential error logging kept
     }
   };
 

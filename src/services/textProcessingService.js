@@ -1,25 +1,19 @@
 import {STOP_WORDS} from "../utils/constants";
 
-/**
- * Preprocesses text input similar to NLTK processes
- * @param {string} text - User input text
- * @returns {string[]} Array of processed words
- */
 export const preprocess = (text) => {
   if (!text) return [];
 
-  // Convert to lowercase
-  const lowercaseText = text.toLowerCase();
+  // Convert to lowercase and remove punctuation
+  const processed = text
+    .toLowerCase()
+    .replace(/[^\w\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  // Remove punctuation and split into words
-  const tokenized = lowercaseText
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
-    .split(/\s+/);
+  // Split into words and filter out stop words
+  const words = processed
+    .split(" ")
+    .filter((word) => !STOP_WORDS.includes(word));
 
-  // Remove stop words
-  const filteredWords = tokenized.filter(
-    (word) => !STOP_WORDS.includes(word) && word.length > 1
-  );
-
-  return filteredWords;
+  return words;
 };

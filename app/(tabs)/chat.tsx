@@ -23,7 +23,7 @@ export default function ChatTab() {
           setPersonaSelected(true);
         }
       } catch (error) {
-        console.error("Error checking saved persona:", error);
+        // Essential error logging kept
       } finally {
         setIsLoading(false);
       }
@@ -33,7 +33,6 @@ export default function ChatTab() {
   }, []);
 
   const handlePersonaSelected = (personaType: string) => {
-    console.log("Persona selected:", personaType);
     setPersona(personaType);
     setPersonaSelected(true);
   };

@@ -23,7 +23,6 @@ import {getCurrentPersona, resetConversation} from "../services/geminiService";
 import ChatMessage from "../components/ChatMessage";
 import TypingIndicator from "../components/TypingIndicator";
 
-// Enhanced quick replies that cover common mental health topics
 const QUICK_REPLIES = [
   "I'm feeling down today 😞",
   "Just stressed about work 📚",
@@ -39,7 +38,7 @@ const ChatScreen = ({onChangePersona}) => {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [apiStatus, setApiStatus] = useState("online"); // possible values: "online", "offline", "connecting"
+  const [apiStatus, setApiStatus] = useState("online");
   const [showStatusBanner, setShowStatusBanner] = useState(false);
   const [apiErrorCount, setApiErrorCount] = useState(0);
   const [lastApiCheck, setLastApiCheck] = useState(0);
@@ -47,7 +46,6 @@ const ChatScreen = ({onChangePersona}) => {
   const quickRepliesRef = useRef(null);
   const currentPersona = getCurrentPersona();
 
-  // Initialize messages with the current persona's greeting
   useEffect(() => {
     setMessages([
       {
@@ -64,12 +62,9 @@ const ChatScreen = ({onChangePersona}) => {
     }
   }, [messages]);
 
-  // Check API status periodically
   useEffect(() => {
-    // Function to check API status
     const checkApiStatus = async () => {
       try {
-        // Only check every 15 seconds at most to avoid excessive calls
         const now = Date.now();
         if (now - lastApiCheck < 15000) {
           return;
@@ -78,38 +73,32 @@ const ChatScreen = ({onChangePersona}) => {
         setLastApiCheck(now);
         const status = await isApiAvailable();
 
-        // If status changed, update UI
         if (status !== (apiStatus === "online")) {
           setApiStatus(status ? "online" : "offline");
           setShowStatusBanner(!status);
 
-          // Reset error count when API comes back online
           if (status) {
             setApiErrorCount(0);
           }
         }
       } catch (error) {
-        console.error("Error checking API status:", error);
+        // Keep essential error logging
       }
     };
 
-    // Check immediately on mount
     checkApiStatus();
 
-    // Then check periodically - more frequently when we know there are issues
     const interval = setInterval(
       checkApiStatus,
-      apiStatus === "offline" ? 15000 : 60000 // Check more often when offline
+      apiStatus === "offline" ? 15000 : 60000
     );
 
     return () => clearInterval(interval);
   }, [apiStatus, lastApiCheck]);
 
-  // Handle retry when API is down
   const handleRetryConnection = async () => {
     setApiStatus("connecting");
     try {
-      // Show feedback to user about the retry
       const reconnectMessage = {
         id: Date.now().toString(),
         text: "Trying to reconnect to the server... 🔄",
@@ -118,22 +107,18 @@ const ChatScreen = ({onChangePersona}) => {
       };
       setMessages((prevMessages) => [...prevMessages, reconnectMessage]);
 
-      // Use a shorter timeout for the retry attempt
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error("Connection timeout")), 6000)
       );
 
-      // Create the actual check promise
       const checkPromise = isApiAvailable();
 
-      // Race them to handle timeouts more gracefully
       const isAvailable = await Promise.race([checkPromise, timeoutPromise]);
 
       setApiStatus(isAvailable ? "online" : "offline");
       setShowStatusBanner(!isAvailable);
 
       if (isAvailable) {
-        // Show success message
         const reconnectedMessage = {
           id: Date.now().toString() + "-success",
           text: "Connection restored! I'm back online and ready to chat! 🧠✨",
@@ -142,7 +127,6 @@ const ChatScreen = ({onChangePersona}) => {
         };
         setMessages((prevMessages) => [...prevMessages, reconnectedMessage]);
       } else {
-        // Show failure message
         const failedMessage = {
           id: Date.now().toString() + "-failed",
           text: "Still having trouble connecting to the server. I'll continue using my backup mode for now. 🧩",
@@ -152,10 +136,8 @@ const ChatScreen = ({onChangePersona}) => {
         setMessages((prevMessages) => [...prevMessages, failedMessage]);
       }
     } catch (error) {
-      console.error("Error retrying connection:", error);
       setApiStatus("offline");
 
-      // Show error message - customize based on error type
       const errorMessage = {
         id: Date.now().toString() + "-error",
         text:
@@ -181,17 +163,9 @@ const ChatScreen = ({onChangePersona}) => {
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setInputText("");
 
-    // Show typing indicator with realistic timing
     setIsTyping(true);
 
     try {
-      // Add more detailed logging for debugging
-      console.log(
-        "Sending message to chatbot:",
-        text.substring(0, 50) + (text.length > 50 ? "..." : "")
-      );
-
-      // Process the message with updated Gemini API
       const startTime = Date.now();
       const {
         response: botResponse,
@@ -200,14 +174,7 @@ const ChatScreen = ({onChangePersona}) => {
       } = await processChatbotResponse(text);
       const responseTime = Date.now() - startTime;
 
-      console.log(
-        `Response received in ${responseTime}ms:`,
-        botResponse.substring(0, 50) + (botResponse.length > 50 ? "..." : "")
-      );
-
-      // Update API status if we got a fallback response
       if (usingFallback) {
-        // Increment error count for consecutive failures
         setApiErrorCount((prev) => prev + 1);
 
         if (apiStatus !== "offline") {
@@ -215,7 +182,6 @@ const ChatScreen = ({onChangePersona}) => {
           setShowStatusBanner(true);
         }
 
-        // If we have specific 503 errors, show a more informative system message
         if (errorType === "service_unavailable" && apiErrorCount === 0) {
           const serviceUnavailableMessage = {
             id: `service-unavailable-${Date.now()}`,
@@ -224,17 +190,13 @@ const ChatScreen = ({onChangePersona}) => {
             isSystemMessage: true,
           };
           setMessages((prev) => [...prev, serviceUnavailableMessage]);
-        }
-        // If we've seen 5+ consecutive errors, show a more prominent notice
-        else if (apiErrorCount >= 5 && apiErrorCount % 5 === 0) {
-          // This will create a distinct system message every 5 errors
+        } else if (apiErrorCount >= 5 && apiErrorCount % 5 === 0) {
           const apiIssueMessage = {
             id: `api-error-${Date.now()}`,
             text: "I'm still having trouble connecting to my main brain. No worries though - my backup mode works great too! 🧠💫",
             sender: "bot",
             isSystemMessage: true,
           };
-          // Insert this message before the actual response
           setMessages((prev) => [...prev, apiIssueMessage]);
         }
       } else if (apiStatus !== "online") {
@@ -243,7 +205,6 @@ const ChatScreen = ({onChangePersona}) => {
         setApiErrorCount(0);
       }
 
-      // Add a minimum delay to make typing seem natural
       const minTypingTime = 800;
       if (responseTime < minTypingTime) {
         await new Promise((resolve) =>
@@ -262,15 +223,8 @@ const ChatScreen = ({onChangePersona}) => {
 
       setMessages((prevMessages) => [...prevMessages, botMessage]);
     } catch (error) {
-      console.error("Error in chat handling:", error);
+      // Keep essential error handling
 
-      // Log more details about the error
-      if (error.response) {
-        console.error("API Error Status:", error.response.status);
-        console.error("API Error Data:", JSON.stringify(error.response.data));
-      }
-
-      // Handle errors gracefully
       setIsTyping(false);
       const errorMessage = {
         id: (Date.now() + 1).toString(),
@@ -285,15 +239,12 @@ const ChatScreen = ({onChangePersona}) => {
   const handleQuickReply = (reply) => {
     handleSend(reply);
 
-    // Scroll the quick replies to the start
     if (quickRepliesRef.current) {
       quickRepliesRef.current.scrollTo({x: 0, animated: true});
     }
   };
 
-  // Add new function to handle persona change
   const handleChangePersona = () => {
-    // Ask for confirmation before changing
     Alert.alert(
       "Change your companion?",
       "This will reset your current conversation.",
@@ -305,7 +256,6 @@ const ChatScreen = ({onChangePersona}) => {
         {
           text: "Change",
           onPress: () => {
-            // Reset the conversation for the current persona before changing
             resetConversation();
             onChangePersona();
           },
@@ -314,7 +264,6 @@ const ChatScreen = ({onChangePersona}) => {
     );
   };
 
-  // Map persona names to match home screen
   const getPersonaName = (originalName) => {
     const nameMap = {
       "Best Friend": "Supportive Friend",
@@ -366,7 +315,6 @@ const ChatScreen = ({onChangePersona}) => {
           </TouchableOpacity>
         </LinearGradient>
 
-        {/* API Status Banner */}
         {showStatusBanner && (
           <TouchableOpacity
             style={[
@@ -414,7 +362,6 @@ const ChatScreen = ({onChangePersona}) => {
           ListFooterComponent={isTyping ? <TypingIndicator /> : null}
         />
 
-        {/* Quick replies section */}
         <View style={styles.quickRepliesSection}>
           <Text style={styles.quickRepliesLabel}>Suggested topics:</Text>
           <ScrollView
@@ -433,7 +380,6 @@ const ChatScreen = ({onChangePersona}) => {
           </ScrollView>
         </View>
 
-        {/* Enhanced message input section */}
         <View
           style={[
             styles.inputSection,
