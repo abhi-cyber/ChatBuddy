@@ -8,6 +8,7 @@ import {
   signInWithEmailPassword,
   signUpWithEmailPassword,
 } from "../services/authService";
+import {getFirebaseAuth} from "../services/firebaseService";
 
 // Create auth context
 const AuthContext = createContext({
@@ -16,6 +17,7 @@ const AuthContext = createContext({
   signIn: async (email, password) => {},
   signUp: async (email, password, displayName) => {},
   signOut: async () => {},
+  refreshUser: async () => {},
 });
 
 // Auth provider component
@@ -53,6 +55,15 @@ export const AuthProvider = ({children}) => {
     // Cleanup subscription
     return () => unsubscribe();
   }, []);
+
+  const refreshUser = async () => {
+    const auth = getFirebaseAuth();
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      await currentUser.reload();
+      setUser({...currentUser});
+    }
+  };
 
   // Auth context value
   const value = {
@@ -92,6 +103,7 @@ export const AuthProvider = ({children}) => {
         throw error;
       }
     },
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

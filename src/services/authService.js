@@ -194,3 +194,40 @@ export const cleanupAuthListeners = () => {
   });
   authStateListeners.length = 0;
 };
+
+/**
+ * Update the current user's profile information
+ * @param {Object} profileData - Object containing updated profile data
+ * @param {string} [profileData.displayName] - The user's new display name
+ * @param {string} [profileData.photoURL] - The URL of the user's new profile photo
+ * @returns {Promise<void>}
+ */
+export const updateUserProfile = async (profileData) => {
+  try {
+    const auth = getFirebaseAuth();
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error("No authenticated user found");
+    }
+
+    // In a real app, you'd upload the image to storage first
+    // and then update the user's profile with the image URL
+
+    /*
+    // Example of how you might handle file upload with Firebase storage:
+    if (profileData.photoURL && profileData.photoURL.startsWith('file://')) {
+      const fileName = `profile_${currentUser.uid}_${Date.now()}`;
+      const reference = storage().ref(`profile_images/${fileName}`);
+      await reference.putFile(profileData.photoURL);
+      const downloadURL = await reference.getDownloadURL();
+      profileData.photoURL = downloadURL;
+    }
+    */
+
+    await updateProfile(currentUser, profileData);
+    return currentUser;
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    throw error;
+  }
+};
