@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   buttonContainer: {
-    width: "100%",
+    width: "80%",
     alignItems: "center",
     marginBottom: 20,
     gap: 12,
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 24,
     borderRadius: 14,
-    width: "100%",
+    width: "75%",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -262,11 +262,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  primaryButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#6C5CE7",
-  },
   secondaryButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -275,9 +270,14 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 24,
     borderRadius: 14,
-    width: "100%",
+    width: "75%",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.5)",
+  },
+  primaryButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#000",
   },
   secondaryButtonText: {
     fontSize: 16,
@@ -286,6 +286,7 @@ const styles = StyleSheet.create({
   },
   privacyText: {
     fontSize: 12,
+    marginHorizontal: 20,
     color: "white",
     opacity: 0.8,
     textAlign: "center",
